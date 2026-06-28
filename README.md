@@ -134,4 +134,11 @@ pre-commit install
 pre-commit run --all-files
 ```
 
+**Step 2: CI/CD with GitLab Runner**
+This project includes a production-grade `.gitlab-ci.yml` pipeline that runs over 10 quality, security, and build checks. To run it locally:
+1. Install [GitLab Runner](https://docs.gitlab.com/runner/install/) on your machine.
+2. Register the runner as a **Shell** executor.
+3. Push your commits using semantic commit messages (`feat:`, `fix:`, etc.) to trigger the pipeline.
+4. Review pipeline output directly in your GitLab repository under CI/CD -> Pipelines.
+
 *Further instructions on how to install OpenCV, PaddleOCR, pull the Ollama model, and run the Streamlit app will go here.*

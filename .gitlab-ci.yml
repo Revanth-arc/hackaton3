@@ -1,0 +1,142 @@
+image: python:3.12
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - .venv/
+
+stages:
+  - prepare
+  - validate
+  - quality
+  - security
+  - test
+  - build
+
+# 1. Environment Setup
+setup:
+  stage: prepare
+  script:
+    - python -m venv .venv
+    - source .venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install pre-commit black isort ruff mypy bandit pytest yamllint
+  artifacts:
+    paths:
+      - .venv/
+  expire_in: 1 hour
+
+# 2. Pre-Commit
+pre_commit_checks:
+  stage: validate
+  script:
+    - source .venv/bin/activate
+    - pre-commit run --all-files
+
+# 10. Project Metadata Validation
+metadata_check:
+  stage: validate
+  script:
+    - '[ -f README.md ] || (echo "README.md missing" && exit 1)'
+    - '[ -f LICENSE ] || (echo "LICENSE missing" && exit 1)'
+    - '[ -f CHANGELOG.md ] || (echo "CHANGELOG.md missing" && exit 1)'
+    - '[ -f CONTRIBUTING.md ] || (echo "CONTRIBUTING.md missing" && exit 1)'
+    - '[ -f .gitignore ] || (echo ".gitignore missing" && exit 1)'
+    - '[ -f .pre-commit-config.yaml ] || (echo ".pre-commit-config.yaml missing" && exit 1)'
+    - '[ -f .editorconfig ] || (echo ".editorconfig missing" && exit 1)'
+    - '[ -f requirements.txt ] || (echo "requirements.txt missing" && exit 1)'
+
+# 9. Semantic Commit Validation
+semantic_commits:
+  stage: validate
+  script:
+    - >
+      if [ -n "$CI_COMMIT_MESSAGE" ]; then
+        if ! echo "$CI_COMMIT_MESSAGE" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|ci|build)(\([^)]+\))?:"; then
+          echo "Commit message must follow semantic commit format (e.g. feat:, fix:)."
+          exit 1
+        fi
+      fi
+
+# 11. Dependency Validation
+dependency_check:
+  stage: validate
+  script:
+    - source .venv/bin/activate
+    - pip install --dry-run -r requirements.txt
+
+# 12. YAML Validation
+yaml_lint:
+  stage: validate
+  script:
+    - source .venv/bin/activate
+    - yamllint .gitlab-ci.yml .pre-commit-config.yaml
+
+# 3. Black Formatting Check
+black_check:
+  stage: quality
+  script:
+    - source .venv/bin/activate
+    - black --check .
+
+# 5. Import Sorting
+isort_check:
+  stage: quality
+  script:
+    - source .venv/bin/activate
+    - isort --check-only .
+
+# 4. Ruff Linting
+ruff_lint:
+  stage: quality
+  script:
+    - source .venv/bin/activate
+    - ruff check .
+
+# 6. Type Checking
+mypy_check:
+  stage: quality
+  script:
+    - source .venv/bin/activate
+    - mypy .
+
+# 7. Security Scan
+bandit_scan:
+  stage: security
+  script:
+    - source .venv/bin/activate
+    - bandit -c pyproject.toml -r . -f html -o bandit-report.html || true
+    - bandit -c pyproject.toml -r . -ll
+  artifacts:
+    paths:
+      - bandit-report.html
+
+# 15. Secret Detection
+secret_detection:
+  stage: security
+  image: zricethezav/gitleaks:latest
+  script:
+    - gitleaks detect -v --source .
+  allow_failure: true
+
+# 8. Unit Tests
+unit_tests:
+  stage: test
+  script:
+    - source .venv/bin/activate
+    - pytest --junitxml=report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+
+# 16. Build Verification
+build_verify:
+  stage: build
+  script:
+    - source .venv/bin/activate
+    - python -c "import streamlit; import ocr.paddle_reader; import database.sqlite; import ai.extractor; print('Build verification passed')"

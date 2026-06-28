@@ -1,0 +1,8 @@
+streamlit
+opencv-python
+numpy
+paddlepaddle
+paddleocr
+pydantic
+requests
+reportlab

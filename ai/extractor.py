@@ -12,7 +12,8 @@ def extract_fir_entities(raw_text: str) -> ExtractedEntitiesDTO:
 
     prompt = f"""
     Extract the following details from the complaint text below. Return ONLY a JSON object.
-    Required keys: victim, accused, date, time, location, crime_type, vehicles (list), weapons (list), stolen_items (list), sections (list), summary.
+    Required keys: victim (string), accused (string), date (string), time (string), location (string), crime_type (string), vehicles (list of strings), weapons (list of strings), stolen_items (list of strings), sections (list of strings), summary (string).
+    For lists (vehicles, weapons, stolen_items, sections), output an array of strings. Do not output objects/dictionaries.
     If a list is empty, return an empty array [].
     
     Complaint Text:

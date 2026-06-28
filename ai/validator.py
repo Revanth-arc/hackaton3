@@ -31,6 +31,22 @@ def parse_and_validate(json_str: str) -> ExtractedEntitiesDTO:
             json_str = json_str[:-3]
             
         data = json.loads(json_str.strip())
+        
+        if isinstance(data.get('time'), list):
+            data['time'] = ', '.join(map(str, data['time']))
+            
+        for field in ['vehicles', 'weapons', 'stolen_items', 'sections']:
+            if field in data and isinstance(data[field], list):
+                new_list = []
+                for item in data[field]:
+                    if isinstance(item, dict):
+                        new_list.append(", ".join([f"{k}: {v}" for k, v in item.items()]))
+                    elif isinstance(item, list):
+                        new_list.append(", ".join(map(str, item)))
+                    else:
+                        new_list.append(str(item))
+                data[field] = new_list
+
         dto = ExtractedEntitiesDTO(**data)
         return dto
     except json.JSONDecodeError as e:

@@ -1,121 +1,112 @@
-# PaperLens (ResearchIQ Offline / PaperStruct AI)
+# FIRStruct AI 
 
-An offline-first, CPU-optimized AI application that converts unstructured research papers into structured, searchable knowledge and builds a local knowledge base.
+### Offline AI-Powered Handwritten Complaint to Structured FIR Generator
+
+An **offline-first, CPU-optimized AI application** designed for police stations and law enforcement agencies to transform **handwritten or printed complaints** into **structured FIR drafts** without requiring an internet connection.
 
 ## 🎯 Problem Statement
 
-Researchers and students spend significant time reading lengthy research papers to identify key information such as objectives, methodology, datasets, results, limitations, and future work. Most existing AI assistants require an internet connection and upload sensitive research documents to cloud services, making them unsuitable for confidential or offline environments.
+Police departments continue to rely on handwritten complaints for crime reporting. Current challenges include:
+- Manual reading of handwritten complaints is time-consuming and error-prone.
+- Preparing FIRs takes significant time away from field work.
+- It is difficult to digitally search past handwritten complaints.
+- Sensitive citizen information cannot be securely uploaded to cloud-based AI tools.
+- Limited internet connectivity in rural police stations limits tech adoption.
 
-PaperLens provides an **offline-first, CPU-optimized** solution that transforms research papers into structured, searchable data entirely on the user's device.
+FIRStruct AI automates this entire workflow securely and entirely on the local machine.
 
 ## 🚀 Objective
 
-Convert an unstructured research paper (PDF) into structured information using **only local AI**.
+Build an offline AI assistant capable of converting unstructured handwritten complaints into structured FIR information. Instead of manually reading multiple pages, officers receive a structured report containing:
+- Victim & Accused Details
+- Incident Summary, Crime Type, Date, Time, Location
+- Vehicle Numbers & Weapons Used
+- Suggested IPC/BNS Sections
+- A ready-to-review FIR Draft
 
-Instead of reading a 50-page PDF manually, PaperLens automatically extracts and structures:
-- Title & Authors
-- Abstract & Keywords
-- Problem Statement
-- Methodology & Algorithms
-- Dataset Used
-- Results & Evaluation Metrics
-- Limitations & Future Work
-- References
-
-**Everything is stored locally.** No internet. No cloud APIs. No data leaks.
+**Everything is stored locally. No cloud. No internet. No external APIs.**
 
 ## ✨ Key Features
-- **100% Offline**: All processing runs locally; no internet required after setup.
-- **CPU-Optimized**: Uses lightweight quantized local models (e.g., Qwen2.5:3B or Phi-3 Mini) via Ollama. Chunk-based processing avoids memory exhaustion.
-- **Unstructured to Structured**: Converts PDF text into a well-defined JSON schema.
-- **Local Storage**: Persists extracted data in SQLite.
-- **Semantic Search (Optional)**: Find papers by author, year, keyword, algorithm, dataset, or domain using FAISS.
-- **Streamlit Dashboard**: User-friendly UI for uploading, previewing, and querying documents.
+- **100% Offline**: Works without internet. No data sharing. Ensures absolute privacy.
+- **Handwritten OCR**: Supports handwritten complaints, printed complaints, scanned PDFs, and mobile camera images using PaddleOCR.
+- **Image Enhancement**: Cleans up noisy mobile scans using OpenCV before text extraction.
+- **AI Information Extraction**: Automatically extracts legal entities using lightweight local language models (Ollama).
+- **Automatic FIR Draft Generation**: Officers receive a ready-to-review FIR draft.
+- **Smart Search**: Search past complaints by victim, accused, crime type, location, vehicle, or weapon via SQLite.
+- **PDF Export**: Generate printable FIR PDFs instantly.
 
 ## 🛠 Tech Stack
 
-| Component | Tool / Technology |
+| Component | Technology |
 | :--- | :--- |
-| **Language** | Python 3.12+ |
+| **Programming Language** | Python 3.12 |
 | **Frontend** | Streamlit |
-| **PDF Parsing** | PyMuPDF |
-| **OCR (Optional)** | EasyOCR (for scanned PDFs/Images) |
-| **Local LLM** | Ollama (Qwen2.5:3B / Phi-3 Mini / Gemma / TinyLlama) |
+| **OCR** | PaddleOCR |
+| **Image Processing** | OpenCV |
+| **Local AI** | Ollama (Phi-3 Mini / Qwen2.5:3B) |
 | **Database** | SQLite |
-| **Semantic Search** | FAISS (Optional) |
+| **PDF Export** | ReportLab |
 
 ## 🏗 High-Level Workflow & Pipeline
 
 ```mermaid
 graph TD
-    A[PDF Upload] --> B[Extract PDF Text with PyMuPDF]
-    B --> C[Clean & Normalize Text]
-    C --> D[Chunk the Paper]
-    D --> E[Local Small Language Model via Ollama]
-    E --> F[Structured JSON Output]
-    F --> G[Validate JSON]
-    G -->|Valid| H[SQLite Database]
-    G -->|Valid| I[Search Index]
-    G -->|Invalid| E
-    H --> J[Streamlit Dashboard]
-    I --> J
+    A[Handwritten Complaint] --> B[Camera / Scanner Upload]
+    B --> C[Image Enhancement via OpenCV]
+    C --> D[Offline OCR via PaddleOCR]
+    D --> E[Raw Complaint Text]
+    E --> F[Text Cleaning]
+    F --> G[Local LLM via Ollama]
+    G --> H[Entity Extraction]
+    H --> I[Structured JSON Validation]
+    I --> J[FIR Draft Generator]
+    J --> K[SQLite Database]
+    K --> L[Search Dashboard & PDF Export]
 ```
-
-### Processing Steps:
-1. **Upload PDF**: Supports Research Papers, Conference Papers (IEEE, Springer, ACM, arXiv).
-2. **Normalize Text**: Remove headers, footers, page numbers, repeated spaces, and broken lines.
-3. **Chunking**: Split the paper into logical sections (Abstract, Intro, Methodology, Results) to optimize for small local models.
-4. **LLM Extraction**: Instruct the model to return *ONLY* valid JSON matching our schema.
-5. **Validation**: Auto-retry if the model output is invalid JSON.
-6. **Storage**: Save the structured JSON into SQLite for fast retrieval.
 
 ## 📂 Project Structure
 
 ```
-paperlens/
-├── app.py                  # Main entry point
+firstruct-ai/
+├── app.py                  # Main Streamlit entry point
 ├── frontend/               # Streamlit UI pages
 │   ├── dashboard.py
 │   ├── upload.py
-│   ├── search.py
-│   └── history.py
-├── ingestion/              # Document reading and parsing
-│   ├── pdf_reader.py
-│   └── parser.py
-├── processing/             # Text cleaning and chunking
+│   ├── history.py
+│   └── search.py
+├── ocr/                    # Image processing and text extraction
+│   ├── image_preprocessing.py
+│   └── paddle_reader.py
+├── processing/             # Text cleaning
 │   ├── cleaner.py
-│   └── chunker.py
+│   └── parser.py
 ├── ai/                     # LLM inference and validation
 │   ├── prompt.py
 │   ├── extractor.py
 │   └── validator.py
 ├── database/               # Database management
-│   ├── sqlite.py
-│   └── models.py
+│   └── sqlite.py
 ├── schemas/                # JSON output schemas
-│   └── paper_schema.py
-├── utils/                  # Helper functions
-├── cache/                  # File caching to prevent duplicate processing
+│   └── fir_schema.py
+├── exports/                # Report generation
+│   └── pdf_export.py
+├── cache/                  # File caching
 ├── tests/                  # Unit and integration tests
 └── requirements.txt
 ```
 
-## 📊 Database Schema
+## 📊 Database Schema (SQLite)
 
-The extracted knowledge is stored in an SQLite database with the following structure:
-
-- **Papers Table**: `id`, `title`, `authors`, `year`, `domain`, `summary`, `json`, `created_at`
-- **Keywords Table**: `paper_id`, `keyword`
-- **Datasets Table**: `paper_id`, `dataset`
-- **Algorithms Table**: `paper_id`, `algorithm`
+**FIR Table:**
+- `id`, `victim_name`, `accused_name`, `crime_type`, `incident_date`, `incident_time`, `location`, `vehicle_number`, `ipc_sections`, `summary`, `fir_json`, `created_at`
 
 ## 🔮 Future Enhancements
-- **Paper Comparison**: Upload two papers and generate comparisons based on methodology, datasets, and performance.
-- **Knowledge Graph**: Visualize connections between papers (e.g., Paper A uses Transformer, Paper B builds on Paper A).
-- **Local Chat (Q&A)**: "Which paper used CIFAR-10?" or "Find papers using reinforcement learning."
-- **Multi-modal Support**: Support for DOCX, scanned PDFs (OCR), audio lectures (Whisper.cpp), and images.
-- **Export Formats**: Export structured data as JSON, CSV, or Markdown summaries.
+- Voice Complaint → FIR conversion (Whisper.cpp)
+- Regional Language Support (Multilingual OCR)
+- Crime Hotspot Mapping
+- Duplicate Complaint Detection
+- Criminal History Matching
 
 ## 🚀 Setup & Installation (WIP)
 
-*Instructions on how to install dependencies, pull the Ollama model, and run the Streamlit app will go here.*
+*Instructions on how to install OpenCV, PaddleOCR, pull the Ollama model, and run the Streamlit app will go here.*

@@ -21,6 +21,8 @@ def render_upload_page():
             
             with st.spinner("Step 1: Enhancing Image via OpenCV..."):
                 try:
+                    # Reset the file pointer since st.image() already consumed the stream
+                    uploaded_file.seek(0)
                     image_bytes = uploaded_file.read()
                     enhanced_img = preprocess_image(image_bytes)
                 except Exception as e:

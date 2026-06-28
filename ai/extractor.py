@@ -7,8 +7,8 @@ logger = logging.getLogger(__name__)
 
 def extract_fir_entities(raw_text: str) -> ExtractedEntitiesDTO:
     """Extracts FIR entities from raw text using local Ollama LLM."""
-    if not raw_text or len(raw_text.split()) < 10:
-        raise ExtractionError("Garbage In, Graceful Out: Extracted text is too short or unreadable.")
+    if not raw_text or len(raw_text.strip()) == 0:
+        raise ExtractionError("Garbage In, Graceful Out: No text was extracted by OCR.")
 
     prompt = f"""
     Extract the following details from the complaint text below. Return ONLY a JSON object.
@@ -20,7 +20,7 @@ def extract_fir_entities(raw_text: str) -> ExtractedEntitiesDTO:
     """
     
     url = "http://127.0.0.1:11434/api/generate"
-    model = "qwen2.5:3b" # Default to lightweight model for CPU
+    model = "llama3" # Default to lightweight model for CPU
     
     for attempt in range(3):
         start_time = time.time()
@@ -42,9 +42,13 @@ def extract_fir_entities(raw_text: str) -> ExtractedEntitiesDTO:
             return dto
             
         except ExtractionError as e:
+            last_error = e
             logger.warning(f"Attempt {attempt+1} failed validation: {e}. Retrying...")
-            prompt += f"\\n\\nError in previous output: {e}. Please ensure output is STRICTLY valid JSON matching the schema."
+            prompt += f"\n\nError in previous output: {e}. Please ensure output is STRICTLY valid JSON matching the schema."
+        except requests.exceptions.RequestException as e:
+            raise ExtractionError(f"Ollama API Error: Is Ollama running? Is the '{model}' model installed? Details: {e}")
         except Exception as e:
+            last_error = e
             logger.error(f"LLM API Error on attempt {attempt+1}: {e}")
             
-    raise ExtractionError("Failed to extract valid FIR entities after 3 attempts.")
+    raise ExtractionError(f"Failed to extract valid FIR entities after 3 attempts. Last error: {last_error}")

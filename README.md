@@ -28,12 +28,13 @@ Build an offline AI assistant capable of converting unstructured handwritten com
 
 ## ✨ Key Features
 - **100% Offline**: Works without internet. No data sharing. Ensures absolute privacy.
-- **Handwritten OCR**: Supports handwritten complaints, printed complaints, scanned PDFs, and mobile camera images using PaddleOCR.
+- **Universal Document Support**: Supports handwritten complaints, printed complaints, mobile camera images, and now **Multi-page PDFs**.
+- **Smart PDF Processing**: Auto-detects text-based PDFs to extract text natively (saving CPU time), while falling back to page-by-page OCR for scanned PDFs.
 - **Image Enhancement**: Cleans up noisy mobile scans using OpenCV before text extraction.
 - **AI Information Extraction**: Automatically extracts legal entities using lightweight local language models (Ollama).
 - **Automatic FIR Draft Generation**: Officers receive a ready-to-review FIR draft.
-- **Smart Search**: Search past complaints by victim, accused, crime type, location, vehicle, or weapon via SQLite.
-- **PDF Export**: Generate printable FIR PDFs instantly.
+- **History & Search Dashboard**: Offline UI to browse, filter, view metadata, and search all past complaints across structured fields with ease.
+- **Data Exporting**: Export single complaints to JSON or entire filtered tables to CSV.
 
 ## 🛠 Tech Stack
 
@@ -43,8 +44,9 @@ Build an offline AI assistant capable of converting unstructured handwritten com
 | **Frontend** | Streamlit |
 | **OCR** | PaddleOCR |
 | **Image Processing** | OpenCV |
+| **PDF Processing** | PyMuPDF (fitz) |
 | **Local AI** | Ollama (Phi-3 Mini / Qwen2.5:3B) |
-| **Database** | SQLite |
+| **Database** | SQLite & Pandas |
 | **PDF Export** | ReportLab |
 
 ## 🏗 High-Level Workflow & Pipeline
@@ -98,8 +100,13 @@ firstruct-ai/
 ## 📊 Database Schema (SQLite)
 
 **FIR Table:**
-- `id`, `victim_name`, `accused_name`, `crime_type`, `incident_date`, `incident_time`, `location`, `vehicle_number`, `ipc_sections`, `summary`, `fir_json`, `created_at`
+- `id`, `complaint_id`, `victim_name`, `accused_name`, `crime_type`, `incident_date`, `incident_time`, `location`, `summary`, `status`, `created_at`, `filename`, `file_type`, `page_count`, `processing_method`, `ocr_required`, `file_hash`
 
+**Related Tables:**
+- `vehicles` (fir_id, vehicle_number)
+- `weapons` (fir_id, weapon_type)
+- `stolen_items` (fir_id, item_description)
+- `ipc_sections` (fir_id, section_code)
 ## 🔮 Future Enhancements
 - Voice Complaint → FIR conversion (Whisper.cpp)
 - Regional Language Support (Multilingual OCR)

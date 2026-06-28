@@ -1,466 +1,433 @@
-Project Name
+# PRO.md
 
-PaperLens (or) ResearchIQ Offline (or) PaperStruct AI
+# Project Name
 
-An offline AI-powered research paper analyzer that extracts structured knowledge from academic papers and builds a searchable local knowledge base.
+# FIRStruct AI
 
-Problem Statement
+### Offline AI-Powered Handwritten Complaint to Structured FIR Generator
 
-Researchers and students spend significant time reading lengthy research papers to identify key information such as objectives, methodology, datasets, results, limitations, and future work.
+---
 
-Most existing AI assistants require an internet connection and upload sensitive research documents to cloud services, making them unsuitable for confidential or offline environments.
+# Overview
 
-This project provides an offline-first, CPU-optimized solution that transforms research papers into structured, searchable data entirely on the user's device.
+FIRStruct AI is an **offline-first, CPU-optimized AI application** designed for police stations and law enforcement agencies to transform **handwritten or printed complaints** into **structured FIR drafts** without requiring an internet connection.
 
-Objective
+Many police stations still receive complaints on paper. Officers manually read these complaints, identify important details, determine applicable legal sections, and prepare FIRs. This process is time-consuming, error-prone, and difficult to search later.
 
-Convert an unstructured research paper (PDF) into structured information using only local AI.
+FIRStruct AI automates this entire workflow locally.
 
-Instead of this:
+The application scans handwritten complaints, extracts text using offline OCR, identifies important legal entities using a lightweight local language model, generates a structured FIR draft, stores everything locally in SQLite, and enables instant searching of previous complaints.
 
-50-page PDF
+No cloud.
+No internet.
+No external APIs.
 
-You get:
+Everything runs completely on the local machine.
 
-Title
-Authors
-Abstract
-Keywords
-Problem Statement
-Methodology
-Dataset Used
-Algorithms
-Results
-Limitations
-Future Work
-References
+---
 
-Everything stored locally.
+# Problem Statement
 
-High-Level Workflow
-                PDF Upload
-                     │
-                     ▼
-          Extract PDF Text
-                     │
-                     ▼
-          Clean & Normalize Text
-                     │
-                     ▼
-       Local Small Language Model
-                     │
-                     ▼
-          Structured JSON Output
-                     │
-          ┌──────────┴──────────┐
-          ▼                     ▼
-      SQLite Database       Search Index
-          │                     │
-          └──────────┬──────────┘
-                     ▼
-             Streamlit Dashboard
-Input
+Police departments continue to rely on handwritten complaints for crime reporting.
 
-Supported
+Current challenges include:
 
-Research Paper PDF
-Conference Paper
-IEEE papers
-Springer papers
-ACM papers
-arXiv PDFs
+* Manual reading of handwritten complaints
+* Time-consuming FIR preparation
+* Human errors while extracting important information
+* Difficulty searching previous complaints
+* Sensitive citizen information uploaded to cloud-based AI tools
+* Poor digitization in rural police stations
+* Limited internet connectivity in remote areas
 
-Future
+---
 
-DOCX
-Scanned PDFs
-Images
-Processing Pipeline
-Step 1
+# Objective
 
-Upload PDF
+Build an offline AI assistant capable of converting unstructured handwritten complaints into structured FIR information.
 
-↓
+Instead of manually reading multiple pages, officers receive a structured report containing:
 
-PyMuPDF
+* Victim Details
+* Accused Details
+* Incident Summary
+* Crime Type
+* Date
+* Time
+* Location
+* Vehicle Numbers
+* Weapons Used
+* Witnesses
+* Suggested IPC/BNS Sections
+* FIR Draft
 
-↓
+Everything remains stored locally.
 
-Extract text
+---
 
-Step 2
+# Key Features
 
-Normalize
+## 100% Offline
 
-Remove
+Works without internet.
 
-headers
-footers
-page numbers
-repeated spaces
-broken lines
-Step 3
+No cloud APIs.
 
-Chunk the paper
+No data sharing.
 
-Instead of sending 20 pages at once
+---
 
-Split into
+## Handwritten OCR
 
-Abstract
+Supports:
 
-Introduction
+* Handwritten complaints
+* Printed complaints
+* Scanned PDFs
+* Mobile camera images
 
-Related Work
+---
 
-Methodology
+## AI Information Extraction
 
-Experiments
+Automatically extracts:
 
-Results
+* Victim Name
+* Father's Name
+* Gender
+* Age
+* Address
+* Phone Number
+* Aadhaar (optional)
+* Accused Name
+* Crime Type
+* Incident Date
+* Incident Time
+* Incident Location
+* Vehicle Numbers
+* Weapons Used
+* Stolen Property
+* Amount Lost
+* Witnesses
+* Police Station Jurisdiction
+* Suggested IPC/BNS Sections
+
+---
+
+## Automatic FIR Draft Generation
+
+Instead of writing FIRs manually, officers receive a ready-to-review FIR draft.
+
+---
+
+## Local Database
+
+Stores extracted FIRs inside SQLite.
+
+Allows searching by:
+
+* Victim
+* Accused
+* Crime Type
+* Date
+* Location
+* Vehicle Number
+* IPC/BNS Sections
+
+---
+
+## Smart Search
 
-Conclusion
+Example queries:
+
+* Find robbery cases in Hyderabad
+* Find all bike thefts
+* Search complaints involving knife attacks
+* Show all FIRs against a person
 
-Much better for small local models.
+---
 
-Step 4
+## PDF Export
 
-LLM Extraction
+Export FIR as:
 
-Prompt example
+* PDF
+* JSON
+* CSV
 
-Extract the following fields.
+---
 
-Return ONLY valid JSON.
+# High-Level Workflow
 
-Fields:
+```text
+Handwritten Complaint
+        │
+        ▼
+Camera / Scanner Upload
+        │
+        ▼
+Image Enhancement
+(OpenCV)
+        │
+        ▼
+Offline OCR
+(PaddleOCR)
+        │
+        ▼
+Raw Complaint Text
+        │
+        ▼
+Text Cleaning
+        │
+        ▼
+Local LLM
+(Ollama)
+        │
+        ▼
+Entity Extraction
+        │
+        ▼
+Structured JSON
+        │
+        ▼
+FIR Draft Generator
+        │
+        ▼
+SQLite Database
+        │
+        ▼
+Search Dashboard
+```
 
-Title
+---
 
-Authors
+# Processing Pipeline
 
-Institution
+## Step 1
 
-Research Domain
+Upload handwritten complaint.
 
-Keywords
+Supported formats:
 
-Problem Statement
+* JPG
+* PNG
+* PDF
+* Camera Scan
 
-Methodology
+---
 
-Dataset
+## Step 2
 
-Algorithms
+Image preprocessing using OpenCV.
 
-Evaluation Metrics
+Operations:
 
-Results
+* Noise Removal
+* Contrast Enhancement
+* Deskew
+* Thresholding
+* Sharpening
 
-Limitations
+---
 
-Future Work
+## Step 3
 
-References
-Step 5
+Offline OCR converts handwriting into text.
 
-Validate JSON
+Recommended OCR:
 
-If invalid
+* PaddleOCR
+* TrOCR
+* EasyOCR
 
-Retry
+---
 
-If still invalid
+## Step 4
 
-Report error
+Clean OCR output.
 
-Step 6
+Remove:
 
-Store in SQLite
+* Duplicate spaces
+* OCR mistakes
+* Broken sentences
 
-JSON Schema
+---
 
-Example
+## Step 5
 
+Send cleaned text to a local LLM.
+
+Recommended Models:
+
+* Phi-3 Mini
+* Qwen2.5:3B
+* Gemma 3 4B
+* TinyLlama
+
+Prompt:
+
+"Extract all legal entities and return ONLY valid JSON."
+
+---
+
+## Step 6
+
+Generated JSON
+
+```json
 {
-  "paper_id": "001",
-
-  "title": "Attention Is All You Need",
-
-  "authors": [
-    "Ashish Vaswani",
-    "Noam Shazeer"
+  "victim": "Ravi Kumar",
+  "accused": "Unknown",
+  "date": "27-06-2026",
+  "time": "8:30 PM",
+  "location": "Secunderabad Railway Station",
+  "crime_type": "Robbery",
+  "vehicle": "AP09AB1234",
+  "weapon": "Knife",
+  "stolen_items": [
+    "Motorcycle"
   ],
-
-  "institution": [
-    "Google Brain"
+  "sections": [
+    "Relevant BNS Sections"
   ],
-
-  "publication_year": 2017,
-
-  "domain": "Natural Language Processing",
-
-  "keywords": [
-    "Transformer",
-    "Attention",
-    "Neural Networks"
-  ],
-
-  "problem_statement":
-    "Sequence modeling using recurrence is inefficient.",
-
-  "methodology":
-    "Transformer architecture",
-
-  "datasets":[
-      "WMT14 English-German"
-  ],
-
-  "algorithms":[
-      "Transformer"
-  ],
-
-  "evaluation_metrics":[
-      "BLEU"
-  ],
-
-  "results":"State-of-the-art translation accuracy",
-
-  "limitations":"Requires large datasets",
-
-  "future_work":"Scaling Transformer models",
-
-  "summary":"Introduced attention-only architecture."
+  "summary": "Victim attacked by three unknown persons and motorcycle stolen."
 }
-SQLite Tables
-Papers
-id
+```
 
-title
+---
 
-authors
+## Step 7
 
-year
+Generate structured FIR draft.
 
-domain
+Officer only reviews and approves.
 
-summary
+---
 
-json
+## Step 8
 
-created_at
-Keywords
-paper_id
+Store locally.
 
-keyword
-Datasets
-paper_id
+SQLite
 
-dataset
-Algorithms
-paper_id
+No cloud.
 
-algorithm
-UI
-Dashboard
-Upload Paper
+---
 
-────────────
+# Tech Stack
 
-Paper Preview
+| Component            | Technology              |
+| -------------------- | ----------------------- |
+| Programming Language | Python 3.12             |
+| Frontend             | Streamlit               |
+| OCR                  | PaddleOCR               |
+| Image Processing     | OpenCV                  |
+| Local AI             | Ollama                  |
+| Models               | Phi-3 Mini / Qwen2.5:3B |
+| Database             | SQLite                  |
+| Search               | FAISS (Optional)        |
+| Export               | ReportLab               |
 
-────────────
+---
 
-Extracted Metadata
+# Project Structure
 
-────────────
+```
+firstruct-ai/
 
-Summary
+app.py
 
-────────────
+frontend/
+    dashboard.py
+    upload.py
+    history.py
+    search.py
 
-Keywords
+ocr/
+    image_preprocessing.py
+    paddle_reader.py
 
-────────────
+processing/
+    cleaner.py
+    parser.py
 
-Future Work
+ai/
+    prompt.py
+    extractor.py
+    validator.py
 
-────────────
+fir/
+    generator.py
 
-Save
-History
-Previously Uploaded Papers
+database/
+    sqlite.py
 
-Search
+schemas/
+    fir_schema.py
 
-Filter
+exports/
+    pdf_export.py
 
-Sort
+cache/
 
-Open
+tests/
 
-Delete
-Search
+requirements.txt
+```
 
-Search by
+---
 
-Author
+# Database Schema
 
-Year
+## FIR Table
 
-Keyword
+* id
+* victim_name
+* accused_name
+* crime_type
+* incident_date
+* incident_time
+* location
+* vehicle_number
+* ipc_sections
+* summary
+* fir_json
+* created_at
 
-Algorithm
+---
 
-Dataset
+# Future Enhancements
 
-Domain
-Nice Features
-Paper Comparison
+* Voice Complaint → FIR
+* Regional Language Support
+* Crime Hotspot Mapping
+* Offline Face Sketch Generation
+* Signature Detection
+* Court Charge Sheet Drafting
+* Police Analytics Dashboard
+* Multi-language OCR
+* Duplicate Complaint Detection
+* Criminal History Matching
+* Offline Evidence Management
 
-Upload
+---
 
-Paper A
+# Expected Impact
 
-Paper B
+* Faster FIR registration
+* Reduced manual paperwork
+* Better crime record digitization
+* Improved officer productivity
+* Works in rural police stations
+* Protects sensitive citizen data
+* No dependency on internet
+* Low hardware requirements
 
-↓
+---
 
-Generate
+# Why This Project?
 
-Common topic
+Unlike existing cloud-based AI solutions, FIRStruct AI is specifically designed for government environments where privacy, offline capability, and low-cost deployment are essential.
 
-Different methodology
-
-Different datasets
-
-Performance comparison
-Knowledge Graph
-Transformer
-
-↓
-
-Used by
-
-↓
-
-Paper A
-
-↓
-
-Paper B
-
-↓
-
-Paper C
-Local Chat
-
-Ask
-
-Which paper used CIFAR-10?
-
-or
-
-Find papers using reinforcement learning.
-
-Uses
-
-SQLite + optional FAISS.
-
-Export
-
-Export
-
-JSON
-
-CSV
-
-Markdown Summary
-Folder Structure
-paperlens/
-
-│
-
-├── app.py
-
-├── frontend/
-
-│      dashboard.py
-
-│      upload.py
-
-│      search.py
-
-│      history.py
-
-│
-
-├── ingestion/
-
-│      pdf_reader.py
-
-│      parser.py
-
-│
-
-├── processing/
-
-│      cleaner.py
-
-│      chunker.py
-
-│
-
-├── ai/
-
-│      prompt.py
-
-│      extractor.py
-
-│      validator.py
-
-│
-
-├── database/
-
-│      sqlite.py
-
-│      models.py
-
-│
-
-├── schemas/
-
-│      paper_schema.py
-
-│
-
-├── utils/
-
-│
-
-├── cache/
-
-│
-
-└── tests/
-Tech Stack
-Component	Tool
-Frontend	Streamlit
-PDF Parsing	PyMuPDF
-OCR (optional)	EasyOCR
-Local LLM	Ollama
-Model	Qwen2.5:3B / Phi-3 Mini
-Database	SQLite
-Semantic Search (optional)	FAISS
-Language	Python
-Deployment	Local / Docker
-Why This Fits the Hackathon
-Hackathon Requirement	Solution
-Offline-first	All processing runs locally; no internet required after setup.
-CPU-first	Uses lightweight quantized local models (e.g., Qwen2.5:3B or Phi-3 Mini) through Ollama.
-Unstructured → Structured	Converts PDF text into a well-defined JSON schema.
-Local Storage	Persists extracted data in SQLite (and optionally FAISS for semantic search).
-Resource Efficiency	Chunk-based processing avoids loading entire documents into the model at once.
-Data Schema Alignment	Consistent JSON schema for every processed paper.
-Extensibility	Can later support scanned PDFs (OCR), audio lectures (Whisper.cpp), or research presentations without redesigning the architecture.
+By combining offline OCR, lightweight local language models, and structured legal information extraction, the system significantly reduces the time required to convert handwritten complaints into searchable digital FIRs while ensuring all data remains securely on the local device.

@@ -28,7 +28,7 @@ setup:
   artifacts:
     paths:
       - .venv/
-  expire_in: 1 hour
+    expire_in: 1 hour
 
 # 2. Pre-Commit
 pre_commit_checks:

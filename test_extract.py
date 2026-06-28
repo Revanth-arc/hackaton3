@@ -1,10 +1,11 @@
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from ai.extractor import extract_fir_entities
 
 test_text = """
-On 28-06-2026, my Bajaj Pulsar Ns motorcycle (TS09AB4587) was stolen. 
+On 28-06-2026, my Bajaj Pulsar Ns motorcycle (TS09AB4587) was stolen.
 Also stolen was a Riding helmet worth 5000 and Personal documents.
 """
 try:

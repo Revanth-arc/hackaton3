@@ -31,7 +31,7 @@ The application will be a Streamlit-based Python web app. The processing pipelin
 4. **Persistence & Export**: The JSON is saved to SQLite, and users can export the approved FIR as a PDF using ReportLab.
 
 #### Key Design Decisions
-- **OCR Engine Choice**: PaddleOCR selected over standard text extractors (like PyMuPDF) because the primary input is handwritten images. 
+- **OCR Engine Choice**: PaddleOCR selected over standard text extractors (like PyMuPDF) because the primary input is handwritten images.
   - *Trade-offs*: PaddleOCR is heavier and requires more CPU resources than simple text extraction.
   - *Recommendation*: Optimize PaddleOCR for CPU inference and consider caching OCR results during development.
 - **LLM Pipeline**: Using Ollama for local inference.

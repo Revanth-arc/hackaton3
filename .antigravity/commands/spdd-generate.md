@@ -21,7 +21,7 @@ Generate implementation code from a structured SPDD (Structured Prompt-Driven De
 2. **Read and parse the structured prompt file**
 
    Read the prompt file and extract the REASONS Canvas sections:
-   
+
    | Section | Purpose | Usage |
    |---------|---------|-------|
    | **R** - Requirements | Overall goal and DoD | Understand the business context |
@@ -47,24 +47,24 @@ Generate implementation code from a structured SPDD (Structured Prompt-Driven De
 4. **Validate the Operations sequence**
 
    Review the **Operations** section to verify:
-   
+
    a. **Dependency order is correct**:
       - Classes with no dependencies come first (enums, constants)
       - Classes depend only on previously defined classes
       - No circular dependencies exist
-   
+
    b. **Task decomposition is complete**:
       - Each operation is atomic and testable
       - No logical gaps between operations
       - All components mentioned in Structure are covered
-   
+
    c. **Consistency with Structure section**:
       - Inheritance relationships match
       - Dependencies match
       - Layered architecture is respected
 
    **If issues are found**: Report to user and suggest prompt modifications before proceeding.
-   
+
    **IMPORTANT**: Do NOT re-plan the sequence. The Operations order is the designed execution order from the Abstraction phase.
 
 5. **Generate code following Operations sequence**

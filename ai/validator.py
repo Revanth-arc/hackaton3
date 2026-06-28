@@ -1,9 +1,11 @@
-from pydantic import BaseModel, Field
-from typing import List, Optional
 import json
 import logging
+from typing import List, Optional
+
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
+
 
 class ExtractedEntitiesDTO(BaseModel):
     victim: Optional[str] = None
@@ -18,8 +20,10 @@ class ExtractedEntitiesDTO(BaseModel):
     sections: List[str] = Field(default_factory=list)
     summary: Optional[str] = None
 
+
 class ExtractionError(Exception):
     pass
+
 
 def parse_and_validate(json_str: str) -> ExtractedEntitiesDTO:
     """Parses a JSON string and validates it against the ExtractedEntitiesDTO schema."""
@@ -29,13 +33,13 @@ def parse_and_validate(json_str: str) -> ExtractedEntitiesDTO:
             json_str = json_str[7:]
         if json_str.endswith("```"):
             json_str = json_str[:-3]
-            
+
         data = json.loads(json_str.strip())
-        
-        if isinstance(data.get('time'), list):
-            data['time'] = ', '.join(map(str, data['time']))
-            
-        for field in ['vehicles', 'weapons', 'stolen_items', 'sections']:
+
+        if isinstance(data.get("time"), list):
+            data["time"] = ", ".join(map(str, data["time"]))
+
+        for field in ["vehicles", "weapons", "stolen_items", "sections"]:
             if field in data and isinstance(data[field], list):
                 new_list = []
                 for item in data[field]:

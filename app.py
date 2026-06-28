@@ -1,13 +1,14 @@
-import streamlit as st
-import sys
 import os
+import sys
+
+import streamlit as st
 
 # Ensure the root directory is in the sys.path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from database.sqlite import init_db
-from frontend.upload import render_upload_page
 from frontend.history import render_history_page
+from frontend.upload import render_upload_page
 
 st.set_page_config(page_title="FIRStruct AI", layout="wide")
 

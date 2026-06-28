@@ -1,4 +1,4 @@
-# FIRStruct AI 
+# FIRStruct AI
 
 ### Offline AI-Powered Handwritten Complaint to Structured FIR Generator
 
@@ -114,6 +114,24 @@ firstruct-ai/
 - Duplicate Complaint Detection
 - Criminal History Matching
 
-## 🚀 Setup & Installation (WIP)
+## 🚀 Setup & Installation
 
-*Instructions on how to install OpenCV, PaddleOCR, pull the Ollama model, and run the Streamlit app will go here.*
+**Prerequisites:**
+- Python 3.12
+- Git
+
+**Step 1: Install Pre-commit Hooks (Required for Development)**
+This project enforces code quality, formatting, and security checks before every commit.
+
+```bash
+# Install the pre-commit package
+pip install pre-commit
+
+# Enable git hooks
+pre-commit install
+
+# To manually run all checks against all files:
+pre-commit run --all-files
+```
+
+*Further instructions on how to install OpenCV, PaddleOCR, pull the Ollama model, and run the Streamlit app will go here.*

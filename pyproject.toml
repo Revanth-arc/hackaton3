@@ -1,0 +1,12 @@
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
+skips = ["B104"] # Example: skip binding to all interfaces if applicable
+
+[tool.ruff]
+line-length = 100
+exclude = [".venv", "tests"]
+
+[tool.mypy]
+ignore_missing_imports = true
+exclude = [".venv"]
+explicit_package_bases = true

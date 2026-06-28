@@ -6,3 +6,5 @@ paddleocr
 pydantic
 requests
 reportlab
+pandas
+pymupdf

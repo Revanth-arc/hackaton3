@@ -21,7 +21,7 @@ def extract_fir_entities(raw_text: str) -> ExtractedEntitiesDTO:
     """
     
     url = "http://127.0.0.1:11434/api/generate"
-    model = "qwen3.5:latest" # Default to lightweight model for CPU
+    model = "qwen2.5:3b" # Default to lightweight model for CPU
     
     for attempt in range(3):
         start_time = time.time()

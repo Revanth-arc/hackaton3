@@ -23,9 +23,30 @@ def init_db():
         location TEXT,
         summary TEXT,
         status TEXT,
-        created_at TEXT
+        created_at TEXT,
+        filename TEXT,
+        file_type TEXT,
+        page_count INTEGER,
+        processing_method TEXT,
+        ocr_required BOOLEAN,
+        file_hash TEXT
     )''')
     
+    # Safely alter table to add new columns if they don't exist (for older DBs)
+    new_columns = [
+        ('filename', 'TEXT'),
+        ('file_type', 'TEXT'),
+        ('page_count', 'INTEGER'),
+        ('processing_method', 'TEXT'),
+        ('ocr_required', 'BOOLEAN'),
+        ('file_hash', 'TEXT')
+    ]
+    for col_name, col_type in new_columns:
+        try:
+            cursor.execute(f"ALTER TABLE firs ADD COLUMN {col_name} {col_type}")
+        except sqlite3.OperationalError:
+            pass # Column already exists
+            
     tables = {
         'vehicles': 'vehicle_number',
         'weapons': 'weapon_type',
@@ -44,17 +65,20 @@ def init_db():
     conn.close()
     logger.info("Database initialized.")
 
-def save_fir_draft(dto: ExtractedEntitiesDTO, complaint_id: str) -> str:
+def save_fir_draft(dto: ExtractedEntitiesDTO, complaint_id: str, metadata: dict = None) -> str:
     """Saves a validated DTO into the database with 'Draft' status."""
     fir_id = str(uuid.uuid4())
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
+    metadata = metadata or {}
+    
     try:
         cursor.execute('''INSERT INTO firs 
-            (id, complaint_id, victim_name, accused_name, crime_type, incident_date, incident_time, location, summary, status, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Draft', ?)''', 
-            (fir_id, complaint_id, dto.victim, dto.accused, dto.crime_type, dto.date, dto.time, dto.location, dto.summary, datetime.now().isoformat())
+            (id, complaint_id, victim_name, accused_name, crime_type, incident_date, incident_time, location, summary, status, created_at, filename, file_type, page_count, processing_method, ocr_required, file_hash)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Draft', ?, ?, ?, ?, ?, ?, ?)''', 
+            (fir_id, complaint_id, dto.victim, dto.accused, dto.crime_type, dto.date, dto.time, dto.location, dto.summary, datetime.now().isoformat(),
+             metadata.get('filename'), metadata.get('file_type'), metadata.get('page_count'), metadata.get('processing_method'), metadata.get('ocr_required'), metadata.get('file_hash'))
         )
         
         for v in dto.vehicles:

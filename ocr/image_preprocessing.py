@@ -1,11 +1,21 @@
 import logging
 import time
 
-import cv2
 import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def _load_cv2():
+    try:
+        import cv2
+    except ImportError as exc:
+        raise RuntimeError(
+            "OpenCV is required for image OCR preprocessing. "
+            "Install dependencies with `python3 -m pip install -r requirements.txt`."
+        ) from exc
+    return cv2
 
 
 def preprocess_image(image_bytes: bytes) -> np.ndarray:
@@ -14,6 +24,8 @@ def preprocess_image(image_bytes: bytes) -> np.ndarray:
     """
     start_time = time.time()
     try:
+        cv2 = _load_cv2()
+
         # Convert bytes to numpy array
         nparr = np.frombuffer(image_bytes, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)

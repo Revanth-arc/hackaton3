@@ -1,10 +1,10 @@
-numpy
-opencv-python
-paddleocr
-paddlepaddle
+streamlit
+numpy==1.26.4
+opencv-python-headless
+paddleocr==3.0.0
+paddlepaddle==3.0.0
 pandas
 pydantic
 pymupdf
 reportlab
 requests
-streamlit

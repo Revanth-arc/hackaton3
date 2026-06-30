@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import time
 
 import requests
@@ -11,6 +12,30 @@ from ai.validator import ExtractedEntitiesDTO, ExtractionError, parse_and_valida
 logger = logging.getLogger(__name__)
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")
 DEFAULT_OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
+ALLOW_HEURISTIC_FALLBACK = os.getenv("ALLOW_HEURISTIC_FALLBACK", "true").lower() == "true"
+
+
+def _extract_with_heuristics(raw_text: str) -> ExtractedEntitiesDTO:
+    """Create a usable draft when the local LLM is unavailable on hosted deployments."""
+    cleaned_text = " ".join(raw_text.split())
+    vehicle_numbers = sorted(
+        set(re.findall(r"\b[A-Z]{2}\s?\d{1,2}\s?[A-Z]{1,3}\s?\d{3,4}\b", raw_text.upper()))
+    )
+    dates = re.findall(r"\b\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\b", raw_text)
+    times = re.findall(r"\b\d{1,2}:\d{2}\s?(?:AM|PM|am|pm)?\b", raw_text)
+
+    lowered = raw_text.lower()
+    crime_type = "theft" if any(word in lowered for word in ("stolen", "theft", "robbed")) else None
+    sections = ["BNS/IPC section review required"] if crime_type else []
+
+    return ExtractedEntitiesDTO(
+        date=dates[0] if dates else None,
+        time=times[0] if times else None,
+        crime_type=crime_type,
+        vehicles=vehicle_numbers,
+        sections=sections,
+        summary=cleaned_text[:800] if cleaned_text else None,
+    )
 
 
 def _select_ollama_model() -> str:
@@ -64,7 +89,13 @@ def extract_fir_entities(raw_text: str) -> ExtractedEntitiesDTO:
     {raw_text}
     """
 
-    model = _select_ollama_model()
+    try:
+        model = _select_ollama_model()
+    except ExtractionError:
+        if ALLOW_HEURISTIC_FALLBACK:
+            logger.warning("Ollama is unavailable. Falling back to heuristic extraction.")
+            return _extract_with_heuristics(raw_text)
+        raise
     last_error: Exception | None = None
 
     for attempt in range(3):
@@ -89,6 +120,9 @@ def extract_fir_entities(raw_text: str) -> ExtractedEntitiesDTO:
             logger.warning(f"Attempt {attempt+1} failed validation: {e}. Retrying...")
             prompt += f"\n\nError in previous output: {e}. Please ensure output is STRICTLY valid JSON matching the schema."
         except requests.exceptions.RequestException as e:
+            if ALLOW_HEURISTIC_FALLBACK:
+                logger.warning("Ollama generation failed. Falling back to heuristic extraction.")
+                return _extract_with_heuristics(raw_text)
             raise ExtractionError(
                 f"Ollama API Error: Is Ollama running? Is the '{model}' model installed? Details: {e}"
             )

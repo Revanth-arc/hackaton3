@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import logging
+import os
 import time
 
 import requests
@@ -6,6 +9,44 @@ import requests
 from ai.validator import ExtractedEntitiesDTO, ExtractionError, parse_and_validate
 
 logger = logging.getLogger(__name__)
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")
+DEFAULT_OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
+
+
+def _select_ollama_model() -> str:
+    """Use the configured model when available, otherwise pick an installed local model."""
+    try:
+        response = requests.get(f"{OLLAMA_URL}/api/tags", timeout=5)
+        response.raise_for_status()
+        models = [model["name"] for model in response.json().get("models", [])]
+    except requests.exceptions.RequestException as exc:
+        raise ExtractionError(f"Ollama API Error: Is Ollama running? Details: {exc}") from exc
+
+    if DEFAULT_OLLAMA_MODEL in models:
+        return DEFAULT_OLLAMA_MODEL
+
+    preferred_models = ["qwen2.5:3b", "qwen3.5:latest", "gemma3:4b"]
+    for model in preferred_models:
+        if model in models:
+            logger.warning(
+                "Configured Ollama model %s is not installed. Falling back to %s.",
+                DEFAULT_OLLAMA_MODEL,
+                model,
+            )
+            return model
+
+    if models:
+        logger.warning(
+            "Configured Ollama model %s is not installed. Falling back to %s.",
+            DEFAULT_OLLAMA_MODEL,
+            models[0],
+        )
+        return models[0]
+
+    raise ExtractionError(
+        "Ollama is running, but no models are installed. "
+        "Install one with `ollama pull qwen2.5:3b` or set OLLAMA_MODEL."
+    )
 
 
 def extract_fir_entities(raw_text: str) -> ExtractedEntitiesDTO:
@@ -23,18 +64,18 @@ def extract_fir_entities(raw_text: str) -> ExtractedEntitiesDTO:
     {raw_text}
     """
 
-    url = "http://127.0.0.1:11434/api/generate"
-    model = "qwen2.5:3b"  # Default to lightweight model for CPU
+    model = _select_ollama_model()
     last_error: Exception | None = None
 
     for attempt in range(3):
         start_time = time.time()
         try:
             payload = {"model": model, "prompt": prompt, "stream": False, "format": "json"}
-            response = requests.post(url, json=payload, timeout=60)
+            response = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=60)
             response.raise_for_status()
 
-            result_json = response.json().get("response", "")
+            response_data = response.json()
+            result_json = response_data.get("response") or response_data.get("thinking", "")
             dto = parse_and_validate(result_json)
 
             elapsed = time.time() - start_time

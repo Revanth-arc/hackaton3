@@ -1,9 +1,10 @@
+setuptools<81
 streamlit
 numpy==1.26.4
 opencv-python-headless
-paddleocr==3.0.0
-paddlepaddle==3.0.0
-pandas
+paddleocr==3.7.0
+paddlepaddle
+pandas>=2.2.2
 pydantic
 pymupdf
 reportlab

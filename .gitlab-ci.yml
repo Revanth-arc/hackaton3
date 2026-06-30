@@ -3,10 +3,17 @@ image: python:3.12
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 
+before_script:
+  - export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+  - which python3
+  - python3 --version
+  - python3 -m venv .venv
+  - source .venv/bin/activate
+  - python -m pip install --upgrade pip
+
 cache:
   paths:
     - .cache/pip
-    - .venv/
 
 stages:
   - prepare
@@ -20,9 +27,6 @@ stages:
 setup:
   stage: prepare
   script:
-    - python -m venv .venv
-    - source .venv/bin/activate
-    - pip install --upgrade pip
     - pip install -r requirements.txt
     - pip install pre-commit black isort ruff mypy bandit pytest yamllint
   artifacts:
@@ -118,7 +122,6 @@ bandit_scan:
 # 15. Secret Detection
 secret_detection:
   stage: security
-  image: zricethezav/gitleaks:latest
   script:
     - gitleaks detect -v --source .
   allow_failure: true

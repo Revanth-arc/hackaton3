@@ -16,7 +16,8 @@ def init_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    cursor.execute("""CREATE TABLE IF NOT EXISTS firs (
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS firs (
         id TEXT PRIMARY KEY,
         complaint_id TEXT,
         victim_name TEXT,
@@ -34,7 +35,8 @@ def init_db():
         processing_method TEXT,
         ocr_required BOOLEAN,
         file_hash TEXT
-    )""")
+    )"""
+    )
 
     # Safely alter table to add new columns if they don't exist (for older DBs)
     new_columns = [
@@ -59,11 +61,13 @@ def init_db():
     }
 
     for table, col in tables.items():
-        cursor.execute(f"""CREATE TABLE IF NOT EXISTS {table} (
+        cursor.execute(
+            f"""CREATE TABLE IF NOT EXISTS {table} (
             fir_id TEXT,
             {col} TEXT,
             FOREIGN KEY(fir_id) REFERENCES firs(id)
-        )""")
+        )"""
+        )
 
     conn.commit()
     conn.close()

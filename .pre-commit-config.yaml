@@ -1,6 +1,9 @@
 repos:
+  # ==========================
+  # General File Checks
+  # ==========================
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -9,43 +12,76 @@ repos:
       - id: check-toml
       - id: check-merge-conflict
       - id: check-added-large-files
-        args: ['--maxkb=5120']
+        args:
+          - --maxkb=5120
       - id: detect-private-key
       - id: check-executables-have-shebangs
       - id: check-case-conflict
       - id: mixed-line-ending
       - id: debug-statements
-      - id: requirements-txt-fixer
 
+  # ==========================
+  # Black Formatter
+  # ==========================
   - repo: https://github.com/psf/black
-    rev: 26.5.1
+    rev: 25.1.0
     hooks:
       - id: black
         language_version: python3
-        args: ['--line-length=100']
+        args:
+          - --line-length=100
 
+  # ==========================
+  # Import Sorting
+  # ==========================
   - repo: https://github.com/PyCQA/isort
-    rev: 9.0.0a3
+    rev: 5.13.2
     hooks:
       - id: isort
-        args: ['--profile=black', '--line-length=100']
+        args:
+          - --profile=black
+          - --line-length=100
 
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.15.20
+  # ==========================
+  # Ruff Linter
+  # ==========================
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.2
     hooks:
       - id: ruff
-        args: ['--fix']
+        args:
+          - --fix
 
+  # ==========================
+  # MyPy Type Checker
+  # ==========================
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.1.0
+    rev: v1.16.1
     hooks:
       - id: mypy
-        args: ['--ignore-missing-imports']
-        additional_dependencies: ['pydantic', 'types-requests']
+        args:
+          - --ignore-missing-imports
+        additional_dependencies:
+          - pydantic
+          - types-requests
 
+  # ==========================
+  # Security Scan
+  # ==========================
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.9.4
+    rev: 1.8.6
     hooks:
       - id: bandit
-        args: ['-c', 'pyproject.toml']
-        additional_dependencies: ['bandit[toml]']
+        args:
+          - -c
+          - pyproject.toml
+        additional_dependencies:
+          - bandit[toml]
+
+  # ==========================
+  # YAML Lint
+  # ==========================
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.37.1
+    hooks:
+      - id: yamllint

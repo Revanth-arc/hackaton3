@@ -4,6 +4,8 @@ import time
 import uuid
 
 from ai.extractor import ExtractionError, extract_fir_entities
+from batch.duplicate_detector import check_duplicate
+
 from database.repository import get_complaint_by_hash
 from database.sqlite import save_fir_draft
 from ingestion.file_detector import detect_file_type
@@ -12,6 +14,46 @@ from ocr.image_preprocessing import preprocess_image
 from ocr.paddle_reader import extract_text
 
 logger = logging.getLogger(__name__)
+
+
+def process_batch(uploaded_files, process_callback=None, pdf_progress_callback=None, on_duplicates: str = "reuse_cached"):
+    """Sequentially processes uploaded files.
+
+    on_duplicates:
+      - "reuse_cached" (default): if the DB already has a record for the file hash, skip OCR/LLM and return cached.
+      - "reprocess_anyway": force re-running OCR/LLM even if hash exists.
+
+    NOTE: AI extraction logic is preserved via `process_single_file`.
+    """
+    results = []
+
+    for idx, uploaded_file in enumerate(uploaded_files):
+        filename = uploaded_file.name
+        file_bytes = uploaded_file.read()
+
+        if process_callback:
+            process_callback(idx=idx, total=len(uploaded_files), filename=filename)
+
+        # Duplicate handling policy
+        if on_duplicates == "reuse_cached":
+            result = process_single_file(file_bytes, filename, pdf_progress_callback)
+        else:
+            # Reprocess: temporarily bypass cache by computing hash and checking.
+            # We call existing `process_single_file`, but it always caches when a duplicate exists.
+            # To avoid modifying AI extraction logic deeply, we implement a minimal workaround:
+            # delete existing record for the same hash, if any.
+            dup = check_duplicate(file_bytes)
+            if dup.is_duplicate and dup.existing_data:
+                # We do not have a delete-by-hash API; fall back to calling process_single_file after removing cached record.
+                # This function will not be used unless on_duplicates == reprocess_anyway.
+                from database.repository import delete_complaint
+
+                delete_complaint(dup.existing_data["id"])
+            result = process_single_file(file_bytes, filename, pdf_progress_callback)
+
+        results.append(result)
+
+    return results
 
 
 def process_single_file(file_bytes: bytes, filename: str, pdf_progress_callback=None):

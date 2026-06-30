@@ -1,25 +1,3 @@
-import os
-
-import cv2
-import numpy as np
-
-os.environ["FLAGS_use_mkldnn"] = "0"
-os.environ["PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT"] = "0"
-from paddleocr import PaddleOCR  # noqa: E402
-
-print("Creating dummy image with text...")
-img = np.zeros((200, 400, 3), dtype=np.uint8)
-cv2.putText(img, "FIR TEST 123", (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-
-print("Initializing PaddleOCR...")
-ocr = PaddleOCR(use_angle_cls=True, lang="en", enable_mkldnn=False)
-
-print("Running OCR...")
-result = ocr.ocr(img)
-
-print("Raw OCR Result:", result)
-
-
 def extract_strings(data):
     texts = []
     if isinstance(data, (list, tuple)):
@@ -31,4 +9,7 @@ def extract_strings(data):
     return texts
 
 
-print("Extracted strings:", extract_strings(result))
+def test_extract_strings_handles_nested_paddleocr_output():
+    result = [[[[0, 0], [1, 0], [1, 1], [0, 1]], ("FIR TEST 123", 0.99)]]
+
+    assert extract_strings(result) == ["FIR TEST 123"]

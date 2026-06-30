@@ -29,7 +29,11 @@ class BatchProgress:
         return self.completed
 
     def update_processing(
-        self, filename: str, status: str, message: str | None = None, metrics: dict | None = None
+        self,
+        filename: str,
+        status: str,
+        message: str | None = None,
+        metrics: dict | None = None,
     ):
         item = self.items[filename]
         item.processing_status = status

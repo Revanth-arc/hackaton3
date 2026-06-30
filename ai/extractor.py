@@ -101,7 +101,12 @@ def extract_fir_entities(raw_text: str) -> ExtractedEntitiesDTO:
     for attempt in range(3):
         start_time = time.time()
         try:
-            payload = {"model": model, "prompt": prompt, "stream": False, "format": "json"}
+            payload: dict[str, str | bool] = {
+                "model": model,
+                "prompt": prompt,
+                "stream": False,
+                "format": "json",
+            }
             response = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=60)
             response.raise_for_status()
 

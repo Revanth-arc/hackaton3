@@ -69,7 +69,10 @@ def render_history_page():
         df = pd.DataFrame(complaints)
         csv = df.to_csv(index=False)
         st.download_button(
-            label="📥 Export All (CSV)", data=csv, file_name="all_complaints.csv", mime="text/csv"
+            label="📥 Export All (CSV)",
+            data=csv,
+            file_name="all_complaints.csv",
+            mime="text/csv",
         )
 
     # Pagination
@@ -80,7 +83,10 @@ def render_history_page():
 
     if total_pages > 1:
         st.session_state.page_number = st.number_input(
-            "Page", min_value=1, max_value=total_pages, value=st.session_state.page_number
+            "Page",
+            min_value=1,
+            max_value=total_pages,
+            value=st.session_state.page_number,
         )
 
     start_idx = (st.session_state.page_number - 1) * items_per_page

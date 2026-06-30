@@ -38,7 +38,8 @@ def render_upload_page():
 
                 # Update main progress bar
                 progress_bar.progress(
-                    i / total_files, text=f"Processing Image {i+1} of {total_files}: {filename}"
+                    i / total_files,
+                    text=f"Processing Image {i+1} of {total_files}: {filename}",
                 )
 
                 st.write(f"### Processing: {filename}")
@@ -57,7 +58,10 @@ def render_upload_page():
                         with st.expander(f"View Results for {filename}"):
                             st.json(result["json"])
                             st.text_area(
-                                "OCR Text", result["raw_text"], height=150, key=f"text_{i}"
+                                "OCR Text",
+                                result["raw_text"],
+                                height=150,
+                                key=f"text_{i}",
                             )
                     elif result["status"] == "cached":
                         st.info(f"✓ {filename} was already processed (cached).")

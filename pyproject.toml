@@ -2,9 +2,17 @@
 exclude_dirs = ["tests", ".venv"]
 skips = ["B104"] # Example: skip binding to all interfaces if applicable
 
+[tool.black]
+line-length = 100
+
 [tool.ruff]
 line-length = 100
 exclude = [".venv", "tests"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip = [".venv"]
 
 [tool.mypy]
 ignore_missing_imports = true

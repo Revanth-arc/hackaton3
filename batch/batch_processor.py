@@ -120,10 +120,20 @@ def process_single_file(file_bytes: bytes, filename: str, pdf_progress_callback=
         llm_duration = time.time() - llm_start
     except ExtractionError as e:
         logger.error(f"Extraction failed for {filename}: {e}")
-        return {"status": "error", "filename": filename, "error": str(e), "step": "AI Extraction"}
+        return {
+            "status": "error",
+            "filename": filename,
+            "error": str(e),
+            "step": "AI Extraction",
+        }
     except Exception as e:
         logger.error(f"Unknown extraction error for {filename}: {e}")
-        return {"status": "error", "filename": filename, "error": str(e), "step": "AI Extraction"}
+        return {
+            "status": "error",
+            "filename": filename,
+            "error": str(e),
+            "step": "AI Extraction",
+        }
 
     # Save to DB
     try:
@@ -132,7 +142,12 @@ def process_single_file(file_bytes: bytes, filename: str, pdf_progress_callback=
         db_duration = time.time() - db_start
     except Exception as e:
         logger.error(f"Database save failed for {filename}: {e}")
-        return {"status": "error", "filename": filename, "error": str(e), "step": "Database"}
+        return {
+            "status": "error",
+            "filename": filename,
+            "error": str(e),
+            "step": "Database",
+        }
 
     return {
         "status": "success",

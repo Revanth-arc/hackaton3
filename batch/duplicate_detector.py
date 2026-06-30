@@ -25,4 +25,3 @@ def check_duplicate(file_bytes: bytes) -> DuplicateCheckResult:
         existing_data=existing,
         file_hash=file_hash,
     )
-

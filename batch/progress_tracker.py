@@ -28,7 +28,9 @@ class BatchProgress:
     def success_count(self) -> int:
         return self.completed
 
-    def update_processing(self, filename: str, status: str, message: str | None = None, metrics: dict | None = None):
+    def update_processing(
+        self, filename: str, status: str, message: str | None = None, metrics: dict | None = None
+    ):
         item = self.items[filename]
         item.processing_status = status
         item.message = message
@@ -57,4 +59,3 @@ class ProgressTracker:
                 size_bytes=f.get("size_bytes", 0),
             )
         return progress
-

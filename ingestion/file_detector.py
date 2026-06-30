@@ -12,7 +12,7 @@ def detect_file_type(file_bytes: bytes) -> str:
         # Fallback signature checks
         if file_bytes.startswith(b"%PDF"):
             return "application/pdf"
-        elif file_bytes.startswith(b"\xFF\xD8"):
+        elif file_bytes.startswith(b"\xff\xd8"):
             return "image/jpeg"
         elif file_bytes.startswith(b"\x89PNG\r\n\x1a\n"):
             return "image/png"

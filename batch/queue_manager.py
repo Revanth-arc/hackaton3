@@ -15,4 +15,3 @@ def build_queue(uploaded_files) -> List[QueueItem]:
     for f in uploaded_files:
         items.append(QueueItem(filename=f.name, size_bytes=getattr(f, "size", 0)))
     return items
-

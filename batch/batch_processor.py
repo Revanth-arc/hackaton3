@@ -5,7 +5,6 @@ import uuid
 
 from ai.extractor import ExtractionError, extract_fir_entities
 from batch.duplicate_detector import check_duplicate
-
 from database.repository import get_complaint_by_hash
 from database.sqlite import save_fir_draft
 from ingestion.file_detector import detect_file_type
@@ -16,7 +15,12 @@ from ocr.paddle_reader import extract_text
 logger = logging.getLogger(__name__)
 
 
-def process_batch(uploaded_files, process_callback=None, pdf_progress_callback=None, on_duplicates: str = "reuse_cached"):
+def process_batch(
+    uploaded_files,
+    process_callback=None,
+    pdf_progress_callback=None,
+    on_duplicates: str = "reuse_cached",
+):
     """Sequentially processes uploaded files.
 
     on_duplicates:

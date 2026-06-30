@@ -11,7 +11,6 @@ from database.sqlite import init_db
 from frontend.history import render_history_page
 from frontend.upload import render_upload_page
 
-
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 VENV_PYTHON = os.path.join(PROJECT_ROOT, ".venv", "bin", "python")
 
@@ -33,6 +32,7 @@ def check_runtime_environment() -> bool:
     st.code(f"{VENV_PYTHON} -m streamlit run app.py", language="bash")
     st.info(f"Current Python: {sys.executable}")
     return False
+
 
 st.set_page_config(page_title="FIRStruct AI", layout="wide")
 

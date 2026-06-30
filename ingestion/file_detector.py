@@ -1,12 +1,11 @@
-import magic
-
-
 def detect_file_type(file_bytes: bytes) -> str:
     """
     Detects the mime type of the file bytes.
     If python-magic is not installed, falls back to a simple signature check.
     """
     try:
+        import magic
+
         mime = magic.from_buffer(file_bytes, mime=True)
         return mime
     except ImportError:

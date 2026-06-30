@@ -1,8 +1,6 @@
 import logging
 import time
 
-import cv2
-import fitz  # PyMuPDF
 import numpy as np
 
 from ocr.image_preprocessing import preprocess_image
@@ -11,12 +9,35 @@ from ocr.paddle_reader import extract_text
 logger = logging.getLogger(__name__)
 
 
+def _load_cv2():
+    try:
+        import cv2
+    except ImportError as exc:
+        raise RuntimeError(
+            "OpenCV is required for OCR on scanned PDF pages. "
+            "Install dependencies with `python3 -m pip install -r requirements.txt`."
+        ) from exc
+    return cv2
+
+
+def _load_fitz():
+    try:
+        import fitz  # PyMuPDF
+    except ImportError as exc:
+        raise RuntimeError(
+            "PyMuPDF is required for PDF processing. "
+            "Install dependencies with `python3 -m pip install -r requirements.txt`."
+        ) from exc
+    return fitz
+
+
 def process_pdf(file_bytes: bytes, progress_callback=None) -> dict:
     """
     Processes a PDF file, extracting text natively if available,
     otherwise falling back to OCR on a per-page basis.
     """
     start_time = time.time()
+    fitz = _load_fitz()
 
     # Load PDF from bytes
     doc = fitz.open(stream=file_bytes, filetype="pdf")
@@ -39,6 +60,7 @@ def process_pdf(file_bytes: bytes, progress_callback=None) -> dict:
             if progress_callback:
                 progress_callback(i + 1, page_count, "ocr")
 
+            cv2 = _load_cv2()
             ocr_used = True
             # Render page to image for OCR
             pix = page.get_pixmap(dpi=200)  # Good balance of quality and speed
